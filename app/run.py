@@ -7,8 +7,9 @@ from nltk.tokenize import word_tokenize
 
 from flask import Flask
 from flask import render_template, request, jsonify
-from plotly.graph_objs import Bar
-from sklearn.externals import joblib
+from plotly.graph_objs import Bar, Pie
+import joblib
+#from sklearn.externals import joblib
 from sqlalchemy import create_engine
 
 
@@ -26,11 +27,14 @@ def tokenize(text):
     return clean_tokens
 
 # load data
-engine = create_engine('sqlite:///../data/YourDatabaseName.db')
-df = pd.read_sql_table('YourTableName', engine)
+database_name = '../data/DisasterResponse.db'
+table_name = 'project2db'
+engine = create_engine('sqlite:///' + database_name)
+df = pd.read_sql_table(table_name, engine)
 
 # load model
-model = joblib.load("../models/your_model_name.pkl")
+model_name = '../models/classifier.pkl'
+model = joblib.load(model_name)
 
 
 # index webpage displays cool visuals and receives user input text for model
@@ -42,6 +46,11 @@ def index():
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
+
+    types = df.iloc[:, 5:].sum(axis=0).sort_values()
+    types_counts = types.values
+    types_names = list(types.index)
+
     
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
@@ -49,21 +58,58 @@ def index():
         {
             'data': [
                 Bar(
-                    x=genre_names,
-                    y=genre_counts
+                    x=types_names,
+                    y=types_counts
                 )
             ],
 
             'layout': {
-                'title': 'Distribution of Message Genres',
+                'title': {
+                    'text': 'Distribution of Message Types',
+                    'font': {
+                        'size': 20,
+                    },
+                },
                 'yaxis': {
                     'title': "Count"
                 },
                 'xaxis': {
-                    'title': "Genre"
-                }
+                    'title': {
+                        'text': 'Message Types',
+                        'standoff': 30,
+                    },
+                    'automargin': True
+                },
+                "height": 500,
+                "autosize": True
             }
-        }
+        },
+        {
+            'data': [
+                Pie(
+                    labels=genre_names,
+                    values=genre_counts
+                    )
+            ],
+
+            'layout': {
+                'title': {
+                    'text': 'Distribution of Genres',
+                    'font': {
+                        'size': 20,
+                    },
+                },                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Genre",
+                },
+                "width": 600,
+                "autosize": False
+
+            }
+        },
+
     ]
     
     # encode plotly graphs in JSON
