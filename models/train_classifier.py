@@ -13,6 +13,8 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
 import pickle
 
+nltk.download('punkt')
+nltk.download('wordnet')
 
 def load_data(database_filepath):
     """
@@ -61,7 +63,7 @@ def build_model():
         ('clf', MultiOutputClassifier(RandomForestClassifier()))
     ])
     
-    # Hypertuning parameters
+    # Parameters for Hypertuning
     parameters = {
         'tfidf__use_idf': (True, False),
         'clf__estimator__n_estimators': [50, 100, 150],
@@ -69,19 +71,18 @@ def build_model():
       
         } 
     
-    parameters = {
-        #'tfidf__use_idf': (True),
-        'clf__estimator__n_estimators': [50],
-        'clf__estimator__min_samples_split': [2, 4],
-      
-        } 
+    #parameters = {
+    #   #'tfidf__use_idf': (True),
+    #    'clf__estimator__n_estimators': [50],
+    #    'clf__estimator__min_samples_split': [2, 4],
+    #    }
 
-    model = GridSearchCV(pipeline, param_grid=parameters, verbose=2)
+    model = GridSearchCV(pipeline, param_grid=parameters, n_jobs=-1, verbose=2)
     
-    return model
+    return pipeline
 
 
-def evaluate_model(model, X_test, Y_test, category_names):
+def evaluate_model(model, X_test, y_test, category_names):
     """
     Evaluates the model performance on the Test subset
     :param model: Model to evaluate
@@ -92,9 +93,9 @@ def evaluate_model(model, X_test, Y_test, category_names):
     """
     y_pred = model.predict(X_test)
     for i, column in enumerate(category_names):
-        y_testclean = y_test[column].values
-        print(f'Resulst for {column}:')
-        print(classification_report(y_testclean, y_pred[:,i] ))
+        #y_testclean = y_test[i]
+        print(f'Result for {column}:')
+        print(classification_report(y_test[:, i], y_pred[:, i]))
 
 def save_model(model, model_filepath):
     """
