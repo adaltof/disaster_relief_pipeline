@@ -82,5 +82,8 @@ The following structure of files is present on this repo:
 
 The data used for the analysis is provided by [Figure Eight](https://www.figure-eight.com/).
 This work is part of an assignment for the Data Science Nanodegree offered by [Udacity](https://udacity.com). 
+
+The code for this project is available at [Github](https://github.com/adaltof/datascience_u).
+
 <br>This project is distributed under MIT License.
 
