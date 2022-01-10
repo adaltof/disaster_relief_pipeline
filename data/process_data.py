@@ -33,14 +33,17 @@ def clean_data(df):
     row_names = [category_name.split("-")[0] for category_name in row_names]
     categories.columns = row_names
 
-   
-    # Change categories values to integer
+    # Change categories values to binary
     for column in categories:
+
         categories[column] = categories[column].str.replace(column + "-","")
-        
         categories[column] = categories[column].astype(int)  
-    
-     # Replace Categories
+
+        # Check if category value is not binary - change to binary
+        categories[column] = np.where((categories[column] < 0), 0, categories[column])
+        categories[column] = np.where((categories[column] > 1), 1, categories[column])
+
+    # Replace Categories
     df = df.drop(['categories'], axis=1)
     df = df.join(categories)
     
@@ -58,7 +61,7 @@ def save_data(df, database_filename):
     
     """
     engine = create_engine('sqlite:///'+ database_filename)
-    df.to_sql('project2db', engine, index=False)
+    df.to_sql('project2db', engine, index=False, if_exists='replace')
       
 
 
